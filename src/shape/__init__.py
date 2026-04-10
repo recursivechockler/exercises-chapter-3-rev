@@ -1,1 +1,1 @@
-from .shape import Circle  # noqa F401
+from .circle import Circle  # noqa F401
