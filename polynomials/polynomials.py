@@ -1,5 +1,7 @@
 from numbers import Number
 
+def derivative(poly):
+    return poly.dx()
 
 class Polynomial:
 
@@ -50,3 +52,59 @@ class Polynomial:
 
     def __radd__(self, other):
         return self + other
+
+    def __sub__(self, other):
+        if isinstance(other, Polynomial):
+            negpoly = Polynomial(tuple(-c for c in other.coefficients))
+
+            return self + negpoly
+        
+        if isinstance(other, Number):
+            return self - Polynomial((other,))
+        
+        return NotImplemented
+    
+    def __rsub__(self, other):
+        if isinstance(self, Polynomial):
+            negpoly = Polynomial(tuple(-c for c in self.coefficients))
+
+            return other + negpoly
+        
+        if isinstance(self, Number):
+            return other - Polynomial((self,))
+        
+        return NotImplemented
+
+    def __mul__(self, other):
+
+        if isinstance(other, Number):
+            return Polynomial(tuple(c * other for c in self.coefficients))
+        
+        if isinstance(other, Polynomial):
+            total = Polynomial((0,))
+
+            for pow, c in enumerate(self.coefficients):
+                total += Polynomial(tuple(pow * (0,) + tuple(c * oc for oc in other.coefficients)))
+            
+            return total
+        
+        return NotImplemented
+
+    def __rmul__(self,other):
+        return self * other
+    
+    def __pow__(self, other):
+        
+        if other == 0:
+            return Polynomial((1,))
+        
+        return self * (self ** (other-1))
+    
+    def __call__(self, value):
+        return sum(c * (value ** pow) for pow, c in enumerate(self.coefficients))
+    
+    def dx(self):
+        if len(self.coefficients) == 1:
+            return Polynomial((0,))
+
+        return Polynomial(tuple((pow) * c for pow, c in enumerate(self.coefficients))[1:])
